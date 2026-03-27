@@ -1,64 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import "tailwindcss";
 
-@theme {
-  --color-primary: #4F46E5;
-  --color-primary-hover: #4338CA;
-  --color-secondary: #1E1B4B;
-  --color-sidebar-bg: #FFFFFF;
-  --color-content-bg: #F3F4F6;
-  --color-card-bg: #FFFFFF;
-  --color-card-border: #E5E7EB;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
-  --color-border: #D1D5DB;
-  --color-active-bg: #EEF2FF;
-  --color-workspace-badge: #10B981;
-  --color-danger: #EF4444;
-  --color-avatar: #F97316;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  --animate-slide-in: slide-in 0.25s ease-out;
+/* Custom Theme */
+:root {
+  --color-primary: #4F46E5;         /* Indigo Blue */
+  --color-primary-hover: #4338CA;   /* Darker Indigo */
+  --color-secondary: #1E1B4B;       /* Deep Navy / Indigo Dark */
+  
+  --color-sidebar-bg: #FFFFFF;      /* Pure White */
+  --color-content-bg: #F3F4F6;      /* Light Gray (Background) */
+  
+  --color-card-bg: #FFFFFF;         /* White (Card Background) */
+  --color-card-border: #E5E7EB;     /* Light Gray Border */
+  
+  --color-text-primary: #111827;    /* Almost Black (Primary Text) */
+  --color-text-secondary: #6B7280;  /* Gray (Secondary Text) */
+  --color-text-muted: #9CA3AF;      /* Muted Gray */
+  
+  --color-border: #D1D5DB;          /* Soft Gray Border */
+  --color-active-bg: #EEF2FF;       /* Light Indigo Background */
+  
+  --color-workspace-badge: #10B981; /* Emerald Green */
+  --color-danger: #EF4444;          /* Red (Error / Danger) */
+  --color-avatar: #F97316; 
+  --color-header1 : #060538;
+  --color-header2 : #2a2550;
+  --color-search : #3A3A69;
+  --color-header3: #0D0D66;         /* Orange */
+}
 
-  @keyframes slide-in {
-    from {
-      transform: translateX(100%);
-    }
-    to {
-      transform: translateX(0);
-    }
+/* Custom animation */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 
+.animate-slide-in {
+  animation: slide-in 0.25s ease-out;
+}
+
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Body */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   background-color: #F3F4F6;
   color: #111827;
 }
 
-/* Custom scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 ::-webkit-scrollbar-thumb {
   background: #D1D5DB;
   border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
 }

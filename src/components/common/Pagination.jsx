@@ -19,7 +19,7 @@ const Pagination = ({ totalRows, rowsPerPage, currentPage, totalPages, onRowsPer
   );
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 bg-white border-t border-card-border text-sm">
+    <div className="flex items-center justify-between px-6 py-3 bg-white  border-card-border text-sm">
       {/* Left - Row Count */}
       <span className="text-text-secondary text-[13px]">{totalRows} rows</span>
 
