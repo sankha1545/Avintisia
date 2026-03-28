@@ -7,57 +7,57 @@ A modern, feature-rich web application built with React and Vite. This project p
 ### Core Modules Screenshots
 
 #### Agents Management
-- **Agents  View** - ![Agents Grid](screenshots/agents.webp)
+- **Agents  View** - ![Agents Grid](public/screenshots/agents.webp)
 
 #### Executions
-- **Executions  View** - ![Executions Grid](screenshots/executions.webp)
+- **Executions  View** - ![Executions Grid](public/screenshots/executions.webp)
 
 
 #### Integrations
-- **Integrations Grid View** - ![Integrations Grid](screenshots/integrations.webp)
+- **Integrations Grid View** - ![Integrations Grid](public/screenshots/integrations.webp)
 
 
 #### Jobs Management
-- **Jobs Grid View** - ![Jobs Grid](screenshots/jobs.webp)
+- **Jobs Grid View** - ![Jobs Grid](public/screenshots/jobs.webp)
 
 
 #### Key Store
-- **Key Store Grid View** - ![Key Store Grid](screenshots/keystore.webp)
+- **Key Store Grid View** - ![Key Store Grid](public/screenshots/keystore.webp)
 
 
 #### Knowledge Base
-- **Knowledge Base Grid View** - ![Knowledge Base Grid](screenshots/knowledge.webp)
+- **Knowledge Base Grid View** - ![Knowledge Base Grid](public/screenshots/knowledge.webp)
 
 
 #### Library
-- **Library Grid View** - ![Library Grid](screenshots/library.webp)
+- **Library Grid View** - ![Library Grid](public/screenshots/library.webp)
 
 
 #### Machines
-- **Machines Grid View** - ![Machines Grid](screenshots/machines.webp)
+- **Machines Grid View** - ![Machines Grid](public/screenshots/machines.webp)
 
 #### Models
-- **Models Grid View** - ![Models Grid](screenshots/models.webp)
+- **Models Grid View** - ![Models Grid](public/screenshots/models.webp)
 
 
 #### Published Pipelines
-- **Published Grid View** - ![Published Grid](screenshots/published.webp)
+- **Published Grid View** - ![Published Grid](public/screenshots/published.webp)
 
 
 #### Queues
-- **Queues Grid View** - ![Queues Grid](screenshots/queues.webp)
+- **Queues Grid View** - ![Queues Grid](public/screenshots/queues.webp)
 
 
 #### Triggers
-- **Triggers Grid View** - ![Triggers Grid](screenshots/triggers.webp)
+- **Triggers Grid View** - ![Triggers Grid](public/screenshots/triggers.webp)
 
 
 #### Vault
-- **Vault Grid View** - ![Vault Grid](screenshots/vault.webp)
+- **Vault Grid View** - ![Vault Grid](public/screenshots/vault.webp)
 
 
 #### Tenant Settings
-- **Tenant Settings Page** - ![Tenant Settings](screenshots/tenant.webp)
+- **Tenant Settings Page** - ![Tenant Settings](public/screenshots/tenant.webp)
 
 
 ### UI Components Screenshots
@@ -66,12 +66,12 @@ A modern, feature-rich web application built with React and Vite. This project p
 
 ### Modal Dialogs
 
-- **Create Modal Base** - ![Create Modal](screenshots/knowledge(create).webp)
-- **Edit Modal** - ![Edit Modal](screenshots/queue(edit).webp)
-- **View Modal** - ![View Modal](screenshots/published(view).webp)
-- **Delete Confirmation Modal** - ![Delete Modal](screenshots/published(delete).webp)
+- **Create Modal Base** - ![Create Modal](public/screenshots/knowledge(create).webp)
+- **Edit Modal** - ![Edit Modal](public/screenshots/queue(edit).webp)
+- **View Modal** - ![View Modal](public/screenshots/published(view).webp)
+- **Delete Confirmation Modal** - ![Delete Modal](public/screenshots/published(delete).webp)
 
-> **Note**: To use this gallery, create a `screenshots/` directory in the root of your repository and add the corresponding images.
+> **Note**: To use this gallery, create a `public/screenshots/` directory in the root of your repository and add the corresponding images.
 
 ## 🌟 Features
 
