@@ -1,4 +1,4 @@
-# WebApp
+# WORCSPACE
 
 A modern, feature-rich web application built with React and Vite. This project provides a comprehensive platform for managing agents, executions, integrations, jobs, and more through an intuitive user interface.
 
