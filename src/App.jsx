@@ -5,32 +5,30 @@ import Sidebar from "./components/common/Sidebar";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // Track current route
   const location = useLocation();
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
+    <div className="flex flex-col w-full min-h-screen bg-white">
 
-      {/* ───────── HEADER ───────── */}
+      {/* HEADER */}
       <Header onMenuClick={() => setIsSidebarOpen(true)} />
 
-      {/* ───────── LAYOUT ───────── */}
-      <div className="flex pt-[52px] h-[calc(100vh-52px)]">
+      {/* LAYOUT */}
+      <div className="flex flex-1 w-full pt-[52px]">
 
-        {/* ───────── SIDEBAR ───────── */}
-       <Sidebar
-  currentPath={location.pathname}
-  isOpen={isSidebarOpen}
-  onClose={() => setIsSidebarOpen(false)}
-  onOpen={() => setIsSidebarOpen(true)}   // ✅ ADD THIS
-/>
+        {/* SIDEBAR */}
+        <Sidebar
+          currentPath={location.pathname}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onOpen={() => setIsSidebarOpen(true)}
+        />
 
-        {/* ───────── MAIN CONTENT ───────── */}
-        <main className="flex-1 flex flex-col bg-content-bg">
+        {/* MAIN */}
+        <main className="flex flex-col flex-1 w-full min-w-0 bg-content-bg">
 
-          {/* Scroll Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {/* SCROLL AREA */}
+          <div className="flex-1 w-full px-3 py-4 overflow-x-hidden overflow-y-auto sm:px-4 md:px-6 lg:px-8 sm:py-6">
             <Outlet />
           </div>
 

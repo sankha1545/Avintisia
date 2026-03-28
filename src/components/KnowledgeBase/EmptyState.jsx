@@ -1,4 +1,4 @@
-// src/components/KnowledgeBase/EmptyState.jsx
+
 import Icons from "../common/Icons";
 
 const EmptyState = ({ onCreateNew }) => (

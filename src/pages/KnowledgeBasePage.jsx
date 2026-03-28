@@ -15,6 +15,7 @@ const KnowledgeBasePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(9);
 
+  // 🔍 Debounced Search
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearchQuery(searchInput.trim());
@@ -24,6 +25,7 @@ const KnowledgeBasePage = () => {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // 🔍 Filter Logic
   const filteredCards = useMemo(() => {
     const query = searchQuery.toLowerCase();
 
@@ -34,6 +36,7 @@ const KnowledgeBasePage = () => {
     );
   }, [searchQuery]);
 
+  // 📄 Pagination
   const totalPages = Math.max(1, Math.ceil(filteredCards.length / rowsPerPage));
 
   useEffect(() => {
@@ -45,6 +48,7 @@ const KnowledgeBasePage = () => {
     return filteredCards.slice(start, start + rowsPerPage);
   }, [filteredCards, currentPage, rowsPerPage]);
 
+  // 📄 Navigation
   const goToFirst = () => setCurrentPage(1);
   const goToLast = () => setCurrentPage(totalPages);
   const goPrev = () => setCurrentPage((p) => Math.max(1, p - 1));
@@ -52,28 +56,33 @@ const KnowledgeBasePage = () => {
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gray-50">
-        {/* TOP HEADER: fixed in layout */}
-        <div className="flex-shrink-0 border-b bg-white px-4 py-3 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-lg font-semibold text-gray-900">
+      <div className="flex flex-col h-full min-h-0 bg-white">
+
+        {/* 🔷 HEADER */}
+        <div className="flex-shrink-0 px-6 py-4 bg-white ">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <h1 className="text-xl font-semibold text-gray-900">
               Knowledge Base
             </h1>
 
-            <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
-              <div className="relative flex-1 sm:w-[260px]">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <div className="flex items-center w-full gap-3 sm:w-auto">
+
+              {/* Search */}
+              <div className="relative w-full sm:w-[280px]">
+                <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <input
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Search knowledge..."
-                  className="h-9 w-full rounded-md border border-gray-200 pl-9 pr-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full h-10 pr-3 text-sm border border-gray-200 rounded-md outline-none pl-9 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
+              {/* Button */}
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-indigo-600 px-4 text-sm text-white transition hover:bg-indigo-700"
+                className="flex items-center h-10 gap-2 px-4 text-sm text-white transition bg-indigo-600 rounded-md hover:bg-indigo-700"
               >
                 <Plus size={16} />
                 Create New
@@ -82,34 +91,47 @@ const KnowledgeBasePage = () => {
           </div>
         </div>
 
-        {/* MIDDLE: only this section scrolls */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-6">
+        {/* 🔷 GRID SECTION */}
+        <div className="flex-1 min-h-0 px-6 py-5 overflow-y-auto bg-white">
+
           {paginatedCards.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-              {paginatedCards.map((card) => (
-                <KnowledgeBaseCard key={card.id} {...card} />
-              ))}
+
+            <div className="p-5 bg-white border shadow-sm rounded-xl">
+
+              {/* ✅ FIXED GRID (ALWAYS MAX 3 PER ROW) */}
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedCards.map((card) => (
+                  <KnowledgeBaseCard key={card.id} {...card} />
+                ))}
+              </div>
+
             </div>
+
           ) : (
             <EmptyState />
           )}
         </div>
 
-        {/* BOTTOM PAGINATION: fixed in layout */}
-        <div className="flex-shrink-0 border-t bg-white px-4 py-3 text-sm sm:px-6">
+        {/* 🔷 PAGINATION */}
+        <div className="flex-shrink-0 px-6 py-4 text-sm bg-white ">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-gray-600">{filteredCards.length} results</div>
 
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <div className="text-gray-600">
+              {filteredCards.length} results
+            </div>
+
+            <div className="flex flex-wrap items-center gap-6">
+
+              {/* Rows */}
               <div className="flex items-center gap-2">
-                <span className="whitespace-nowrap text-gray-500">Rows</span>
+                <span className="text-gray-500">Rows</span>
                 <select
                   value={rowsPerPage}
                   onChange={(e) => {
                     setRowsPerPage(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="rounded-md border px-2 py-1 text-sm outline-none"
+                  className="px-2 py-1 border rounded-md"
                 >
                   <option value={6}>6</option>
                   <option value={9}>9</option>
@@ -117,16 +139,18 @@ const KnowledgeBasePage = () => {
                 </select>
               </div>
 
-              <div className="whitespace-nowrap text-gray-500">
+              {/* Page Info */}
+              <div className="text-gray-500">
                 page {currentPage} of {totalPages}
               </div>
 
+              {/* Controls */}
               <div className="flex items-center gap-1">
+
                 <button
                   onClick={goToFirst}
                   disabled={currentPage === 1}
-                  className="rounded-md border px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-80"
-                  aria-label="Go to first page"
+                  className="px-2 py-1 border rounded-md hover:bg-gray-100 disabled:opacity-50"
                 >
                   {"<<"}
                 </button>
@@ -134,8 +158,7 @@ const KnowledgeBasePage = () => {
                 <button
                   onClick={goPrev}
                   disabled={currentPage === 1}
-                  className="rounded-md border px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-80"
-                  aria-label="Go to previous page"
+                  className="px-2 py-1 border rounded-md hover:bg-gray-100 disabled:opacity-50"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -143,8 +166,7 @@ const KnowledgeBasePage = () => {
                 <button
                   onClick={goNext}
                   disabled={currentPage === totalPages}
-                  className="rounded-md border px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-80"
-                  aria-label="Go to next page"
+                  className="px-2 py-1 border rounded-md hover:bg-gray-100 disabled:opacity-50"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -152,17 +174,18 @@ const KnowledgeBasePage = () => {
                 <button
                   onClick={goToLast}
                   disabled={currentPage === totalPages}
-                  className="rounded-md border px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-80"
-                  aria-label="Go to last page"
+                  className="px-2 py-1 border rounded-md hover:bg-gray-100 disabled:opacity-50"
                 >
                   {">>"}
                 </button>
+
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* 🔷 MODAL */}
       <CreateKnowledgeBaseModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

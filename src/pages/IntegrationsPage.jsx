@@ -1,114 +1,125 @@
-// src/pages/IntegrationsPage.jsx
 import { useState, useMemo } from "react";
 import { integrationsData } from "../data/sidebarData";
 import { Modal, EmptyState } from "../components/common/CardGridPage";
 import FormField from "../components/common/FormField";
 import TextInput from "../components/common/TextInput";
-import TextArea from "../components/common/TextArea";
-import SelectInput from "../components/common/SelectInput";
 import Button from "../components/common/Button";
 import SearchInput from "../components/common/SearchInput";
 import Icons from "../components/common/Icons";
 
-const EXTRA_INTEGRATIONS = [
-  { id: 7,  name: "Twilio",     category: "SMS",         status: "disconnected", icon: "📱", description: "Send SMS and voice notifications via Twilio.",        connectedOn: null },
-  { id: 8,  name: "HubSpot",    category: "CRM",         status: "disconnected", icon: "🧡", description: "Sync contacts and manage CRM workflows.",             connectedOn: null },
-  { id: 9,  name: "Notion",     category: "Productivity",status: "connected",    icon: "📝", description: "Read and write pages in your Notion workspace.",      connectedOn: "22/06/2025" },
-  { id: 10, name: "PostgreSQL", category: "Database",    status: "connected",    icon: "🐘", description: "Query and update your PostgreSQL databases.",         connectedOn: "25/06/2025" },
-  { id: 11, name: "Webhook",    category: "Custom",      status: "connected",    icon: "🔗", description: "Send HTTP webhooks to any external endpoint.",        connectedOn: "28/06/2025" },
-  { id: 12, name: "Zapier",     category: "Automation",  status: "disconnected", icon: "⚡", description: "Connect to 5000+ apps via Zapier workflows.",         connectedOn: null },
-];
+const allIntegrations = [...integrationsData];
 
-const allIntegrations = [...integrationsData, ...EXTRA_INTEGRATIONS];
-
+// ============================
+// CONFIG MODAL
+// ============================
 const ConfigModal = ({ integration, onClose, onSave }) => {
   const [apiKey, setApiKey] = useState("");
-  const [webhook, setWebhook] = useState("");
-
-  const save = () => {
-    if (!apiKey.trim() && !webhook.trim()) return;
-    onSave(integration.id);
-    onClose();
-  };
 
   return (
-    <Modal title={`Configure ${integration.name}`} onClose={onClose} width={480}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: "#f9fafb", borderRadius: 8 }}>
-          <span style={{ fontSize: 28 }}>{integration.icon}</span>
+    <Modal title={`Configure ${integration.name}`} onClose={onClose}>
+      <div className="flex flex-col gap-4">
+
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+          <span className="text-2xl">{integration.icon}</span>
           <div>
-            <div style={{ fontWeight: 600, fontSize: 15, color: "#1a1d2e" }}>{integration.name}</div>
-            <div style={{ fontSize: 12.5, color: "#9ca3af" }}>{integration.category}</div>
+            <p className="font-semibold">{integration.name}</p>
+            <p className="text-xs text-gray-400">{integration.category}</p>
           </div>
         </div>
-        <FormField label="API Key / Token" required>
-          <TextInput value={apiKey} onChange={setApiKey} placeholder="Enter your API key..." type="password" />
+
+        <FormField label="API Key">
+          <TextInput value={apiKey} onChange={setApiKey} />
         </FormField>
-        {["Webhook", "Slack"].includes(integration.name) && (
-          <FormField label="Webhook URL">
-            <TextInput value={webhook} onChange={setWebhook} placeholder="https://..." />
-          </FormField>
-        )}
-        <p style={{ fontSize: 12.5, color: "#9ca3af" }}>
-          Your credentials are encrypted and stored securely in the Vault.
-        </p>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+
+        <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={save} icon="link">Connect</Button>
+          <Button onClick={() => { onSave(integration.id); onClose(); }}>
+            Connect
+          </Button>
         </div>
       </div>
     </Modal>
   );
 };
 
-const IntegrationCard = ({ item, onConnect, onDisconnect, onConfigure }) => {
+// ============================
+// FILTER (🔥 FIXED)
+// ============================
+const FilterTabs = ({ value, onChange }) => {
+  const tabs = ["All", "Connected", "Not Connected"];
+
+  return (
+    <div className="flex items-center gap-6 overflow-x-auto border-b border-gray-200">
+
+      {tabs.map((tab) => {
+        const active = value === tab;
+
+        return (
+          <button
+            key={tab}
+            onClick={() => onChange(tab)}
+            className={`
+              relative pb-2 text-sm font-medium whitespace-nowrap transition
+              ${active ? "text-gray-900" : "text-gray-400 hover:text-gray-600"}
+            `}
+          >
+            {tab}
+
+            {/* 🔥 Active underline */}
+            {active && (
+              <span className="absolute left-0 bottom-0 h-[2px] w-full bg-blue-600 rounded-full" />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+
+// ============================
+// CARD
+// ============================
+const IntegrationCard = ({ item, onConfigure, onDisconnect }) => {
   const connected = item.status === "connected";
 
   return (
-    <div
-      style={{
-        background: "#fff", border: `1px solid ${connected ? "#d1fae5" : "#e8eaf2"}`,
-        borderRadius: 10, padding: "18px 18px 16px", display: "flex", flexDirection: "column",
-        gap: 10, transition: "box-shadow .2s",
-      }}
-      onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)")}
-      onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}
-    >
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 10, background: "#f9fafb", border: "1px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>
+    <div className={`p-4 rounded-xl border transition hover:shadow-md ${
+      connected ? "border-green-200" : "border-gray-200"
+    }`}>
+
+      <div className="flex justify-between">
+        <div className="flex gap-3">
+          <div className="flex items-center justify-center text-xl bg-gray-100 rounded-lg w-11 h-11">
             {item.icon}
           </div>
           <div>
-            <div style={{ fontWeight: 600, fontSize: 14.5, color: "#1a1d2e" }}>{item.name}</div>
-            <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>{item.category}</div>
+            <p className="text-sm font-semibold">{item.name}</p>
+            <p className="text-xs text-gray-400">{item.category}</p>
           </div>
         </div>
-        <span style={{
-          fontSize: 11.5, fontWeight: 600, padding: "2px 9px", borderRadius: 20,
-          background: connected ? "#d1fae5" : "#f3f4f6",
-          color: connected ? "#059669" : "#9ca3af",
-        }}>
-          {connected ? "● Connected" : "○ Not connected"}
+
+        <span className={`text-xs px-2 py-0.5 rounded-full ${
+          connected ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
+        }`}>
+          {connected ? "Connected" : "Not Connected"}
         </span>
       </div>
 
-      <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.55 }}>{item.description}</p>
+      <p className="mt-2 text-xs text-gray-500">{item.description}</p>
 
-      {connected && item.connectedOn && (
-        <div style={{ fontSize: 12, color: "#9ca3af" }}>
-          <span style={{ fontWeight: 500, color: "#d1d5db" }}>Connected On: </span>{item.connectedOn}
-        </div>
-      )}
-
-      <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+      <div className="mt-3">
         {connected ? (
-          <>
-            <Button variant="ghost" size="sm" icon="settings" onClick={() => onConfigure(item)}>Configure</Button>
-            <Button variant="danger" size="sm" onClick={() => onDisconnect(item.id)}>Disconnect</Button>
-          </>
+          <div className="flex gap-2">
+            <Button size="sm" variant="ghost" onClick={() => onConfigure(item)}>
+              Configure
+            </Button>
+            <Button size="sm" variant="danger" onClick={() => onDisconnect(item.id)}>
+              Disconnect
+            </Button>
+          </div>
         ) : (
-          <Button variant="primary" size="sm" icon="link" onClick={() => onConfigure(item)} style={{ width: "100%", justifyContent: "center" }}>
+          <Button size="sm" className="w-full" onClick={() => onConfigure(item)}>
             Connect
           </Button>
         )}
@@ -117,98 +128,84 @@ const IntegrationCard = ({ item, onConnect, onDisconnect, onConfigure }) => {
   );
 };
 
-const CATEGORIES = ["All", "Communication", "DevOps", "Payments", "Email", "Storage", "Database", "CRM", "Productivity", "SMS", "Automation", "Custom", "Project Mgmt"];
 
+// ============================
+// MAIN PAGE
+// ============================
 const IntegrationsPage = () => {
-  const [data, setData]           = useState(allIntegrations);
+  const [data, setData] = useState(allIntegrations);
   const [configTarget, setConfigTarget] = useState(null);
-  const [search, setSearch]       = useState("");
-  const [catFilter, setCatFilter] = useState("All");
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-
-  const handleConnect    = id => setData(prev => prev.map(d => d.id === id ? { ...d, status: "connected", connectedOn: new Date().toLocaleDateString("en-GB") } : d));
-  const handleDisconnect = id => setData(prev => prev.map(d => d.id === id ? { ...d, status: "disconnected", connectedOn: null } : d));
 
   const filtered = useMemo(() => {
     let d = data;
-    if (catFilter !== "All")    d = d.filter(i => i.category === catFilter);
-    if (statusFilter === "Connected")    d = d.filter(i => i.status === "connected");
-    if (statusFilter === "Not Connected") d = d.filter(i => i.status === "disconnected");
-    if (search.trim()) { const q = search.toLowerCase(); d = d.filter(i => `${i.name} ${i.category} ${i.description}`.toLowerCase().includes(q)); }
+
+    if (statusFilter === "Connected") {
+      d = d.filter(i => i.status === "connected");
+    }
+
+    if (statusFilter === "Not Connected") {
+      d = d.filter(i => i.status === "disconnected");
+    }
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      d = d.filter(i =>
+        `${i.name} ${i.category}`.toLowerCase().includes(q)
+      );
+    }
+
     return d;
-  }, [data, search, catFilter, statusFilter]);
+  }, [data, search, statusFilter]);
 
-  const connectedCount = data.filter(d => d.status === "connected").length;
+  const handleConnect = (id) =>
+    setData(prev => prev.map(d =>
+      d.id === id ? { ...d, status: "connected" } : d
+    ));
 
-  const usedCategories = ["All", ...Array.from(new Set(data.map(d => d.category)))];
+  const handleDisconnect = (id) =>
+    setData(prev => prev.map(d =>
+      d.id === id ? { ...d, status: "disconnected" } : d
+    ));
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+    <div className="flex flex-col w-full gap-4">
+
+      {/* HEADER */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#1a1d2e" }}>Integrations</h1>
-          <p style={{ fontSize: 13.5, color: "#6b7280", marginTop: 4 }}>Connect your workspace to external tools and services.</p>
+          <h1 className="text-xl font-bold sm:text-2xl">Integrations</h1>
+          <p className="text-sm text-gray-500">
+            Connect external tools and services.
+          </p>
         </div>
-        <SearchInput value={search} onChange={v => setSearch(v)} placeholder="Search integrations..." />
-      </div>
 
-      {/* Stats */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-        {[
-          { label: "Total Available", val: data.length,                color: "#4f6ef7", icon: "integrations" },
-          { label: "Connected",       val: connectedCount,             color: "#10b981", icon: "check" },
-          { label: "Not Connected",   val: data.length - connectedCount, color: "#9ca3af", icon: "x" },
-        ].map(s => (
-          <div key={s.label} style={{ flex: 1, background: "#fff", border: "1px solid #e8eaf2", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: s.color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Icons name={s.icon} size={18} color={s.color} />
-            </div>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.val}</div>
-              <div style={{ fontSize: 12, color: "#9ca3af" }}>{s.label}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          {["All", "Connected", "Not Connected"].map(s => (
-            <button key={s} onClick={() => setStatusFilter(s)} style={{
-              padding: "5px 14px", borderRadius: 20, fontSize: 13, fontWeight: 500, border: "1px solid", cursor: "pointer",
-              background: statusFilter === s ? "#4f6ef7" : "#fff",
-              color: statusFilter === s ? "#fff" : "#6b7280",
-              borderColor: statusFilter === s ? "#4f6ef7" : "#e5e7eb",
-            }}>{s}</button>
-          ))}
-        </div>
-        <div style={{ height: 22, width: 1, background: "#e5e7eb" }} />
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {usedCategories.map(c => (
-            <button key={c} onClick={() => setCatFilter(c)} style={{
-              padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 500, border: "1px solid", cursor: "pointer",
-              background: catFilter === c ? "#1b1f2e" : "#fff",
-              color: catFilter === c ? "#fff" : "#9ca3af",
-              borderColor: catFilter === c ? "#1b1f2e" : "#e5e7eb",
-            }}>{c}</button>
-          ))}
+        <div className="w-full sm:w-64">
+          <SearchInput value={search} onChange={setSearch} />
         </div>
       </div>
 
-      {filtered.length === 0 ? <EmptyState title="No integrations found" subtitle="Try a different search or filter" /> : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+      {/* 🔥 NEW FILTER */}
+      <FilterTabs value={statusFilter} onChange={setStatusFilter} />
+
+      {/* GRID */}
+      {filtered.length === 0 ? (
+        <EmptyState title="No integrations found" />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map(item => (
             <IntegrationCard
-              key={item.id} item={item}
-              onConnect={handleConnect}
-              onDisconnect={handleDisconnect}
+              key={item.id}
+              item={item}
               onConfigure={setConfigTarget}
+              onDisconnect={handleDisconnect}
             />
           ))}
         </div>
       )}
 
+      {/* MODAL */}
       {configTarget && (
         <ConfigModal
           integration={configTarget}

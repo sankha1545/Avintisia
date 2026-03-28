@@ -7,7 +7,7 @@ export default function Header({ onMenuClick }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ⌘K shortcut
+ 
   useEffect(() => {
     const handleKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -18,7 +18,7 @@ export default function Header({ onMenuClick }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // close dropdown on outside click
+ 
   useEffect(() => {
     const handleClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -33,7 +33,7 @@ export default function Header({ onMenuClick }) {
     <header
       className="fixed top-0 left-0 right-0 z-50 h-[52px] border-b border-white/10 px-4 flex items-center justify-between"
       
-      // 🔥 CRITICAL FIX: force gradient using inline style
+   
       style={{
         background: "linear-gradient(to right, var(--color-header1), var(--color-header2))",
       }}
@@ -41,13 +41,13 @@ export default function Header({ onMenuClick }) {
       {/* LEFT */}
       <div className="flex items-center gap-3">
         {/* Mobile Hamburger */}
-        <button className="lg:hidden text-white" onClick={onMenuClick}>
+        <button className="text-white lg:hidden" onClick={onMenuClick}>
           <Menu size={20} />
         </button>
 
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-7 h-12 rounded-full flex items-center justify-center overflow-hidden ">
+          <div className="flex items-center justify-center h-12 overflow-hidden rounded-full w-7 ">
             <img
               src="/logo.png"
               alt="Logo"
@@ -55,7 +55,7 @@ export default function Header({ onMenuClick }) {
             />
           </div>
 
-          <span className="text-white text-sm font-semibold hidden sm:block">
+          <span className="hidden text-sm font-semibold text-white sm:block">
             Worcspace
           </span>
         </div>
@@ -68,13 +68,13 @@ export default function Header({ onMenuClick }) {
       </div>
 
       {/* CENTER SEARCH */}
-      <div className="flex-1 flex justify-center px-4">
+      <div className="flex justify-center flex-1 px-4">
         <div className="hidden md:flex items-center w-full max-w-[420px] h-[34px] bg-[--color-search] rounded-md px-3 gap-2">
           <Search size={15} className="text-white/40" />
           <input
             type="text"
             placeholder="Search..."
-            className="bg-transparent outline-none text-sm text-white placeholder-white/30 flex-1"
+            className="flex-1 text-sm text-white bg-transparent outline-none placeholder-white/30"
           />
           <span className="text-[11px] px-2 py-[2px] text-white/40 rounded">
             ⌘K
@@ -85,16 +85,16 @@ export default function Header({ onMenuClick }) {
       {/* RIGHT */}
       <div className="flex items-center gap-4">
         {/* Notification */}
-        <button className="relative text-white/70 hover:text-white transition">
+        <button className="relative transition text-white/70 hover:text-white">
           <Bell size={18} />
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+          <span className="absolute w-2 h-2 bg-red-500 rounded-full -top-1 -right-1" />
         </button>
 
         {/* Avatar */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-8 h-8 rounded-full bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center"
+            className="flex items-center justify-center w-8 h-8 text-xs font-semibold text-white bg-indigo-500 rounded-full"
           >
             GK
           </button>
@@ -102,13 +102,13 @@ export default function Header({ onMenuClick }) {
           {/* Dropdown */}
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-44 bg-[#2a2550] border border-white/10 rounded-lg shadow-lg p-2 text-sm text-white animate-in fade-in zoom-in-95">
-              <button className="block w-full text-left px-3 py-2 hover:bg-white/10 rounded">
+              <button className="block w-full px-3 py-2 text-left rounded hover:bg-white/10">
                 Profile
               </button>
-              <button className="block w-full text-left px-3 py-2 hover:bg-white/10 rounded">
+              <button className="block w-full px-3 py-2 text-left rounded hover:bg-white/10">
                 Settings
               </button>
-              <button className="block w-full text-left px-3 py-2 hover:bg-red-500/20 text-red-400 rounded">
+              <button className="block w-full px-3 py-2 text-left text-red-400 rounded hover:bg-red-500/20">
                 Logout
               </button>
             </div>

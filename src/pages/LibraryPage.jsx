@@ -1,4 +1,3 @@
-// src/pages/LibraryPage.jsx
 import { useState, useMemo } from "react";
 import { libraryData } from "../data/sidebarData";
 import { Modal, DotMenu, EmptyState } from "../components/common/CardGridPage";
@@ -11,199 +10,265 @@ import Pagination from "../components/common/Pagination";
 import SearchInput from "../components/common/SearchInput";
 import Icons from "../components/common/Icons";
 
-const categoryColors = {
-  NLP:        { bg: "#eff6ff", color: "#3b82f6" },
-  Vision:     { bg: "#f0fdf4", color: "#10b981" },
-  Automation: { bg: "#faf5ff", color: "#8b5cf6" },
-  Audio:      { bg: "#fff7ed", color: "#f97316" },
-  Data:       { bg: "#fef9c3", color: "#d97706" },
+
+// ============================
+// CATEGORY BADGE
+// ============================
+const categoryStyles = {
+  NLP: "bg-blue-100 text-blue-600",
+  Vision: "bg-green-100 text-green-600",
+  Automation: "bg-purple-100 text-purple-600",
+  Audio: "bg-orange-100 text-orange-600",
+  Data: "bg-yellow-100 text-yellow-600",
 };
 
-const CategoryBadge = ({ category }) => {
-  const c = categoryColors[category] || { bg: "#f3f4f6", color: "#6b7280" };
-  return (
-    <span style={{ fontSize: 11.5, fontWeight: 600, padding: "2px 9px", borderRadius: 20, background: c.bg, color: c.color }}>
-      {category}
-    </span>
-  );
-};
+const CategoryBadge = ({ category }) => (
+  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${categoryStyles[category] || "bg-gray-100 text-gray-500"}`}>
+    {category}
+  </span>
+);
 
+
+// ============================
+// CREATE MODAL
+// ============================
 const CreateLibraryModal = ({ onClose, onCreate }) => {
-  const [name, setName]               = useState("");
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory]       = useState("NLP");
-  const [tags, setTags]               = useState("");
-  const [errors, setErrors]           = useState({});
+  const [category, setCategory] = useState("NLP");
+  const [tags, setTags] = useState("");
+  const [errors, setErrors] = useState({});
 
   const submit = () => {
     const e = {};
-    if (!name.trim())        e.name        = "Name is required";
-    if (!description.trim()) e.description = "Description is required";
+    if (!name.trim()) e.name = "Required";
+    if (!description.trim()) e.description = "Required";
     setErrors(e);
     if (Object.keys(e).length) return;
-    onCreate({ name: name.trim(), description: description.trim(), category, tags: tags.trim() });
+
+    onCreate({
+      name,
+      description,
+      category,
+      tags,
+    });
+
     onClose();
   };
 
   return (
-    <Modal title="Add to Library" onClose={onClose} width={520}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <FormField label="Template Name" required error={errors.name}>
-          <TextInput value={name} onChange={setName} placeholder="e.g. Email Classifier Template" />
+    <Modal title="Add to Library" onClose={onClose}>
+      <div className="flex flex-col gap-4">
+
+        <FormField label="Template Name" error={errors.name}>
+          <TextInput value={name} onChange={setName} />
         </FormField>
+
         <FormField label="Category">
-          <SelectInput value={category} onChange={setCategory} options={[
-            { value: "NLP",        label: "NLP" },
-            { value: "Vision",     label: "Vision" },
-            { value: "Automation", label: "Automation" },
-            { value: "Audio",      label: "Audio" },
-            { value: "Data",       label: "Data" },
-          ]} />
+          <SelectInput
+            value={category}
+            onChange={setCategory}
+            options={[
+              { value: "NLP", label: "NLP" },
+              { value: "Vision", label: "Vision" },
+              { value: "Automation", label: "Automation" },
+              { value: "Audio", label: "Audio" },
+              { value: "Data", label: "Data" },
+            ]}
+          />
         </FormField>
-        <FormField label="Description" required error={errors.description}>
-          <TextArea value={description} onChange={setDescription} placeholder="Describe this template..." rows={3} />
+
+        <FormField label="Description" error={errors.description}>
+          <TextArea value={description} onChange={setDescription} />
         </FormField>
-        <FormField label="Tags (comma separated)">
-          <TextInput value={tags} onChange={setTags} placeholder="e.g. nlp, classification, email" />
+
+        <FormField label="Tags">
+          <TextInput value={tags} onChange={setTags} />
         </FormField>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={submit}>Add Template</Button>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button variant="ghost" onClick={onClose} className="w-full sm:w-auto">
+            Cancel
+          </Button>
+          <Button onClick={submit} className="w-full sm:w-auto">
+            Add Template
+          </Button>
         </div>
       </div>
     </Modal>
   );
 };
 
+
+// ============================
+// CARD
+// ============================
 const LibraryCard = ({ item, onDelete, onView }) => (
-  <div
-    style={{
-      background: "#fff", border: "1px solid #e8eaf2", borderRadius: 10,
-      padding: "18px 18px 16px", display: "flex", flexDirection: "column",
-      gap: 8, transition: "box-shadow .2s", boxSizing: "border-box",
-    }}
-    onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)")}
-    onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}
-  >
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <span style={{ fontWeight: 600, fontSize: 14.5, color: "#1a1d2e" }}>{item.name}</span>
+  <div className="flex flex-col w-full gap-2 p-4 transition bg-white border rounded-xl hover:shadow-md">
+
+    <div className="flex justify-between">
+      <div className="flex flex-col gap-1">
+        <h3 className="text-sm font-semibold">{item.name}</h3>
         <CategoryBadge category={item.category} />
       </div>
-      <DotMenu
-        onView={onView}
-        onDelete={onDelete}
-        extra={[{ label: "Download", icon: "download", action: () => alert(`Downloading ${item.name}`) }]}
+
+      <DotMenu onView={onView} onDelete={onDelete} />
+    </div>
+
+    <p className="flex-1 text-xs text-gray-500">{item.description}</p>
+
+    {/* Progress bar */}
+    <div className="h-1.5 bg-gray-100 rounded overflow-hidden">
+      <div
+        className="h-full transition-all bg-gradient-to-r from-blue-500 to-purple-500"
+        style={{ width: `${Math.min((item.downloads / 600) * 100, 100)}%` }}
       />
     </div>
-    <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.55, flex: 1 }}>{item.description}</p>
 
-    {/* Download count bar */}
-    <div style={{ background: "#f3f4f6", borderRadius: 6, height: 5, overflow: "hidden", marginTop: 4 }}>
-      <div style={{
-        height: "100%", width: `${Math.min((item.downloads / 600) * 100, 100)}%`,
-        background: "linear-gradient(90deg, #4f6ef7, #8b5cf6)", borderRadius: 6,
-        transition: "width .6s ease",
-      }} />
-    </div>
-
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#6b7280" }}>
-        <Icons name="download" size={12} color="#9ca3af" />
-        {item.downloads} downloads
+    <div className="flex justify-between text-xs text-gray-400">
+      <div className="flex items-center gap-1">
+        <Icons name="download" size={12} />
+        {item.downloads}
       </div>
-      <span style={{ fontSize: 12, color: "#9ca3af" }}>
-        <span style={{ fontWeight: 500, color: "#d1d5db" }}>Created On: </span>{item.createdOn}
-      </span>
+      <span>{item.createdOn}</span>
     </div>
   </div>
 );
 
+
+// ============================
+// MAIN PAGE
+// ============================
 const CATEGORIES = ["All", "NLP", "Vision", "Automation", "Audio", "Data"];
 
 const LibraryPage = () => {
-  const [data, setData]         = useState(libraryData);
+  const [data, setData] = useState(libraryData);
   const [showModal, setShowModal] = useState(false);
-  const [search, setSearch]     = useState("");
-  const [filter, setFilter]     = useState("All");
-  const [page, setPage]         = useState(1);
-  const [rows, setRows]         = useState(9);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("All");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(9);
 
-  const handleCreate = item => setData(prev => [{
-    ...item, id: Date.now(), downloads: 0, createdOn: new Date().toLocaleDateString("en-GB"),
-  }, ...prev]);
+  const handleCreate = (item) => {
+    setData((prev) => [
+      {
+        ...item,
+        id: Date.now(),
+        downloads: 0,
+        createdOn: new Date().toLocaleDateString("en-GB"),
+      },
+      ...prev,
+    ]);
+  };
 
-  const handleDelete = id => setData(prev => prev.filter(d => d.id !== id));
+  const handleDelete = (id) => {
+    setData((prev) => prev.filter((d) => d.id !== id));
+  };
 
   const filtered = useMemo(() => {
     let d = data;
-    if (filter !== "All") d = d.filter(i => i.category === filter);
+
+    if (filter !== "All") {
+      d = d.filter((i) => i.category === filter);
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
-      d = d.filter(i => `${i.name} ${i.description} ${i.category}`.toLowerCase().includes(q));
+      d = d.filter((i) =>
+        `${i.name} ${i.description} ${i.category}`.toLowerCase().includes(q)
+      );
     }
+
     return d;
   }, [data, search, filter]);
 
   const paginated = filtered.slice((page - 1) * rows, page * rows);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
+    <div className="flex flex-col w-full h-full gap-4">
 
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+      {/* HEADER */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#1a1d2e" }}>Library</h1>
-          <p style={{ fontSize: 13.5, color: "#6b7280", marginTop: 4 }}>Browse and manage reusable agent templates.</p>
+          <h1 className="text-xl font-bold sm:text-2xl">Library</h1>
+          <p className="text-sm text-gray-500">
+            Browse and manage reusable agent templates.
+          </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <SearchInput value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search library..." />
-          <Button variant="primary" icon="plus" onClick={() => setShowModal(true)}>Add Template</Button>
+
+        <div className="flex flex-col w-full gap-2 sm:flex-row sm:w-auto">
+          <div className="w-full sm:w-64">
+            <SearchInput
+              value={search}
+              onChange={(v) => {
+                setSearch(v);
+                setPage(1);
+              }}
+              placeholder="Search library..."
+            />
+          </div>
+
+          <Button onClick={() => setShowModal(true)} className="w-full sm:w-auto">
+            Add Template
+          </Button>
         </div>
       </div>
 
-      {/* Category filter tabs */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-        {CATEGORIES.map(c => (
+      {/* FILTERS */}
+      <div className="flex flex-wrap gap-2">
+        {CATEGORIES.map((c) => (
           <button
             key={c}
-            onClick={() => { setFilter(c); setPage(1); }}
-            style={{
-              padding: "5px 14px", borderRadius: 20, fontSize: 13, fontWeight: 500,
-              border: "1px solid", cursor: "pointer", transition: "all .15s",
-              background: filter === c ? "#4f6ef7" : "#fff",
-              color: filter === c ? "#fff" : "#6b7280",
-              borderColor: filter === c ? "#4f6ef7" : "#e5e7eb",
+            onClick={() => {
+              setFilter(c);
+              setPage(1);
             }}
+            className={`px-3 py-1 rounded-full text-sm border ${
+              filter === c
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-500 border-gray-200"
+            }`}
           >
             {c}
           </button>
         ))}
       </div>
 
-      {/* Grid */}
+      {/* GRID */}
       {paginated.length === 0 ? (
-        <EmptyState title="No templates found" subtitle="Try a different search or category" />
+        <EmptyState title="No templates found" />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
-          {paginated.map(item => (
+        <div className="grid grid-cols-1 gap-4  sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {paginated.map((item) => (
             <LibraryCard
               key={item.id}
               item={item}
-              onView={() => alert(`View: ${item.name}`)}
+              onView={() => alert(item.name)}
               onDelete={() => handleDelete(item.id)}
             />
           ))}
         </div>
       )}
 
+      {/* PAGINATION */}
       <Pagination
-        total={filtered.length} page={page} rowsPerPage={rows}
-        onPage={setPage} onRowsChange={n => { setRows(n); setPage(1); }}
+        totalRows={filtered.length}
+        currentPage={page}
+        totalPages={Math.ceil(filtered.length / rows)}
+        rowsPerPage={rows}
+        onPageChange={setPage}
+        onRowsPerPageChange={(n) => {
+          setRows(n);
+          setPage(1);
+        }}
       />
 
+      {/* MODAL */}
       {showModal && (
-        <CreateLibraryModal onClose={() => setShowModal(false)} onCreate={handleCreate} />
+        <CreateLibraryModal
+          onClose={() => setShowModal(false)}
+          onCreate={handleCreate}
+        />
       )}
     </div>
   );

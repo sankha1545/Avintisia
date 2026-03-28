@@ -7,8 +7,8 @@ import {  sidebarSections } from "../../data/sidebarData";
 export default function Sidebar({ isOpen, onClose, onOpen }) {
   return (
     <>
-      {/* 🔷 MOBILE TOP BAR */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b flex items-center px-4 z-50">
+      {/*  MOBILE TOP BAR */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center px-4 bg-white border-b lg:hidden h-14">
         <button onClick={onOpen}>
           <Menu className="w-6 h-6 text-gray-700" />
         </button>
@@ -17,15 +17,15 @@ export default function Sidebar({ isOpen, onClose, onOpen }) {
         </span>
       </div>
 
-      {/* 🔷 OVERLAY */}
+      {/*  OVERLAY */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* 🔷 SIDEBAR */}
+      {/*  SIDEBAR */}
       <aside
         className={`
           fixed top-0 left-0 h-full w-64 bg-white border-r z-50
@@ -37,17 +37,17 @@ export default function Sidebar({ isOpen, onClose, onOpen }) {
       >
         <div className="flex flex-col h-full">
 
-          {/* 🔷 MOBILE HEADER */}
-          <div className="lg:hidden flex justify-between items-center px-4 h-14 border-b">
+          {/*  MOBILE HEADER */}
+          <div className="flex items-center justify-between px-4 border-b lg:hidden h-14">
             <span className="font-semibold text-gray-800">Menu</span>
             <X
               onClick={onClose}
-              className="w-5 h-5 cursor-pointer text-gray-600"
+              className="w-5 h-5 text-gray-600 cursor-pointer"
             />
           </div>
 
-          {/* 🔷 SCROLL AREA */}
-          <div className="flex-1 overflow-y-auto pt-3 pb-6">
+          {/*  SCROLL AREA */}
+          <div className="flex-1 pt-3 pb-6 overflow-y-auto">
 
             {sidebarSections.map((section, i) => (
               <div key={i} className="mb-6">
