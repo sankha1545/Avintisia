@@ -1,185 +1,65 @@
-import { useState, useMemo } from "react";
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
 import { queuesData } from "../data/sidebarData";
-import {
-  Modal,
-  DotMenu,
-  EmptyState,
-} from "../components/common/CardGridPage";
-import FormField from "../components/common/FormField";
-import TextInput from "../components/common/TextInput";
-import TextArea from "../components/common/TextArea";
-import SelectInput from "../components/common/SelectInput";
-import Button from "../components/common/Button";
-import Pagination from "../components/common/Pagination";
-import SearchInput from "../components/common/SearchInput";
-import Icons from "../components/common/Icons";
 
+import QueuesHeader from "../components/features/Queues/QueuesHeader";
+import QueuesGrid from "../components/features/Queues/QueuesGrid";
 
-// ============================
-// STAT CHIP
-// ============================
-const StatChip = ({ label, value, color }) => (
-  <div className="flex flex-col items-center flex-1 p-2 rounded-lg bg-gray-50">
-    <span className={`text-lg font-bold`} style={{ color }}>
-      {value}
-    </span>
-    <span className="text-[11px] text-gray-400">{label}</span>
-  </div>
-);
+import CreateBaseModal from "../components/common/modal/CreateBaseModal";
 
+import Pagination from "../components/common/ui/Pagination";
+import EditModal from "../components/common/modal/EditModal";
+import DeleteConfirmModal from "../components/common/modal/DeleteConfirmModal";
 
-// ============================
-// CREATE MODAL
-// ============================
-const CreateQueueModal = ({ onClose, onCreate }) => {
-  const [name, setName] = useState("");
-  const [description, setDesc] = useState("");
-  const [type, setType] = useState("FIFO");
-  const [concurrency, setConcurrency] = useState("4");
-  const [errors, setErrors] = useState({});
-
-  const submit = () => {
-    const e = {};
-    if (!name.trim()) e.name = "Required";
-
-    setErrors(e);
-    if (Object.keys(e).length) return;
-
-    onCreate({
-      name,
-      description,
-      type,
-      concurrency: Number(concurrency),
-    });
-
-    onClose();
-  };
-
-  return (
-    <Modal title="Create Queue" onClose={onClose}>
-      <div className="flex flex-col gap-4">
-
-        <FormField label="Queue Name" error={errors.name}>
-          <TextInput value={name} onChange={setName} />
-        </FormField>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <FormField label="Queue Type">
-            <SelectInput
-              value={type}
-              onChange={setType}
-              options={[
-                { value: "FIFO", label: "FIFO" },
-                { value: "LIFO", label: "LIFO" },
-                { value: "Priority", label: "Priority" },
-              ]}
-            />
-          </FormField>
-
-          <FormField label="Concurrency">
-            <SelectInput
-              value={concurrency}
-              onChange={setConcurrency}
-              options={[
-                { value: "1", label: "1 worker" },
-                { value: "2", label: "2 workers" },
-                { value: "4", label: "4 workers" },
-                { value: "8", label: "8 workers" },
-              ]}
-            />
-          </FormField>
-        </div>
-
-        <FormField label="Description">
-          <TextArea value={description} onChange={setDesc} />
-        </FormField>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button variant="ghost" onClick={onClose} className="w-full sm:w-auto">
-            Cancel
-          </Button>
-          <Button onClick={submit} className="w-full sm:w-auto">
-            Create Queue
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
-
-
-// ============================
-// CARD
-// ============================
-const QueueCard = ({ item, onDelete, onEdit, onPurge }) => {
-  const total = item.pending + item.processed + item.failed;
-  const pct = total ? Math.round((item.processed / total) * 100) : 0;
-
-  return (
-    <div className="flex flex-col gap-3 p-4 transition bg-white border rounded-xl hover:shadow-md">
-
-      {/* Header */}
-      <div className="flex justify-between">
-        <div>
-          <h3 className="text-sm font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-400">
-            {item.type} · {item.concurrency} worker{item.concurrency > 1 && "s"}
-          </p>
-        </div>
-
-        <DotMenu
-          onEdit={onEdit}
-          onDelete={onDelete}
-          extra={[{ label: "Purge Queue", action: onPurge }]}
-        />
-      </div>
-
-      <p className="text-xs text-gray-500">{item.description}</p>
-
-      {/* Stats */}
-      <div className="flex gap-2">
-        <StatChip label="Pending" value={item.pending} color="#f59e0b" />
-        <StatChip label="Processed" value={item.processed} color="#10b981" />
-        <StatChip label="Failed" value={item.failed} color="#ef4444" />
-      </div>
-
-      {/* Progress */}
-      <div>
-        <div className="flex justify-between mb-1 text-xs text-gray-400">
-          <span>Success rate</span>
-          <span className="font-semibold text-green-600">{pct}%</span>
-        </div>
-        <div className="h-1.5 bg-gray-100 rounded overflow-hidden">
-          <div
-            className="h-full bg-green-500"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
-
-      <p className="text-xs text-gray-400">
-        Created On: {item.createdOn}
-      </p>
-    </div>
-  );
-};
-
-
-// ============================
-// MAIN PAGE
-// ============================
 const QueuesPage = () => {
+  // DATA
   const [data, setData] = useState(queuesData);
-  const [showModal, setShowModal] = useState(false);
+
+  // MODALS
+  const [showCreate, setShowCreate] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [purgeItem, setPurgeItem] = useState(null);
+
+  // FILTERS
   const [search, setSearch] = useState("");
+
+  // PAGINATION
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState(9);
 
-  const handleCreate = (item) => {
+  // FILTER
+  const filtered = useMemo(() => {
+    if (!search.trim()) return data;
+
+    const q = search.toLowerCase();
+    return data.filter((i) =>
+      `${i.name} ${i.type}`.toLowerCase().includes(q)
+    );
+  }, [data, search]);
+
+  // PAGINATION SAFETY
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rows));
+
+  useEffect(() => {
+    setPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * rows;
+    return filtered.slice(start, start + rows);
+  }, [filtered, page, rows]);
+
+  // CREATE
+  const handleCreate = (form) => {
     setData((prev) => [
       {
-        ...item,
         id: Date.now(),
+        name: form.name,
+        type: form.type,
+        concurrency: form.concurrency,
+        description: form.description,
         pending: 0,
         processed: 0,
         failed: 0,
@@ -189,100 +69,81 @@ const QueuesPage = () => {
     ]);
   };
 
-  const handleDelete = (id) =>
-    setData((prev) => prev.filter((d) => d.id !== id));
-
-  const handlePurge = (id) =>
+  // UPDATE (FIXED)
+  const handleUpdate = (updated) => {
     setData((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, pending: 0 } : d))
+      prev.map((d) => (d.id === updated.id ? { ...d, ...updated } : d))
+    );
+    setEditItem(null);
+  };
+
+  // DELETE (FIXED)
+  const handleDelete = () => {
+    if (!deleteItem?.id) return;
+
+    setData((prev) => prev.filter((d) => d.id !== deleteItem.id));
+    setDeleteItem(null);
+  };
+
+  // PURGE (FIXED)
+  const handlePurge = () => {
+    if (!purgeItem?.id) return;
+
+    setData((prev) =>
+      prev.map((d) =>
+        d.id === purgeItem.id
+          ? { ...d, pending: 0 }
+          : d
+      )
     );
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return data;
-    const q = search.toLowerCase();
-    return data.filter((i) =>
-      `${i.name} ${i.type}`.toLowerCase().includes(q)
-    );
-  }, [data, search]);
+    setPurgeItem(null);
+  };
 
-  const paginated = filtered.slice((page - 1) * rows, page * rows);
-
-  const totalPending = data.reduce((s, d) => s + d.pending, 0);
-  const totalProcessed = data.reduce((s, d) => s + d.processed, 0);
-  const totalFailed = data.reduce((s, d) => s + d.failed, 0);
+  // CREATE FIELDS
+  const queueFields = [
+    {
+      name: "name",
+      label: "Queue Name",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "type",
+      label: "Type",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "concurrency",
+      label: "Concurrency",
+      type: "text",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+    },
+  ];
 
   return (
-    <div className="flex flex-col w-full h-full gap-4">
+    <div className="flex flex-col gap-4">
 
-      {/* HEADER */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold sm:text-2xl">Queues</h1>
-          <p className="text-sm text-gray-500">
-            Manage job queues and monitor throughput.
-          </p>
-        </div>
+      <QueuesHeader
+        onCreate={() => setShowCreate(true)}
+      />
 
-        <div className="flex flex-col w-full gap-2 sm:flex-row sm:w-auto">
-          <div className="w-full sm:w-64">
-            <SearchInput
-              value={search}
-              onChange={(v) => {
-                setSearch(v);
-                setPage(1);
-              }}
-              placeholder="Search queues..."
-            />
-          </div>
+      <QueuesGrid
+        data={paginated}
+        onEdit={setEditItem}
+        onDelete={setDeleteItem}
+        onPurge={setPurgeItem}
+      />
 
-          <Button onClick={() => setShowModal(true)} className="w-full sm:w-auto">
-            Create Queue
-          </Button>
-        </div>
-      </div>
-
-      {/* SUMMARY */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "Total Queues", val: data.length, color: "text-blue-600", icon: "queues" },
-          { label: "Pending", val: totalPending, color: "text-yellow-500", icon: "activity" },
-          { label: "Processed", val: totalProcessed, color: "text-green-500", icon: "check" },
-          { label: "Failed", val: totalFailed, color: "text-red-500", icon: "x" },
-        ].map((s) => (
-          <div key={s.label} className="flex items-center gap-3 p-4 bg-white border rounded-xl">
-            <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg">
-              <Icons name={s.icon} size={16} />
-            </div>
-            <div>
-              <p className={`text-lg font-bold ${s.color}`}>{s.val}</p>
-              <p className="text-xs text-gray-400">{s.label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* GRID */}
-      {paginated.length === 0 ? (
-        <EmptyState title="No queues found" />
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {paginated.map((item) => (
-            <QueueCard
-              key={item.id}
-              item={item}
-              onEdit={() => alert(item.name)}
-              onDelete={() => handleDelete(item.id)}
-              onPurge={() => handlePurge(item.id)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* PAGINATION */}
       <Pagination
         totalRows={filtered.length}
         currentPage={page}
-        totalPages={Math.ceil(filtered.length / rows)}
+        totalPages={totalPages}
         rowsPerPage={rows}
         onPageChange={setPage}
         onRowsPerPageChange={(n) => {
@@ -291,13 +152,53 @@ const QueuesPage = () => {
         }}
       />
 
-      {/* MODAL */}
-      {showModal && (
-        <CreateQueueModal
-          onClose={() => setShowModal(false)}
-          onCreate={handleCreate}
-        />
-      )}
+      <CreateBaseModal
+        isOpen={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Create Queue"
+        subtitle="Manage background processing queues."
+        fields={queueFields}
+        submitLabel="Create Queue"
+        initialState={{
+          name: "",
+          type: "",
+          concurrency: "",
+          description: "",
+        }}
+        onSubmit={handleCreate}
+      />
+
+      <EditModal
+        isOpen={!!editItem}
+        onClose={() => setEditItem(null)}
+        initialData={editItem}
+        title="Edit Queue"
+        fields={[
+          { key: "name", label: "Name" },
+          { key: "type", label: "Type" },
+          { key: "concurrency", label: "Concurrency" },
+          { key: "description", label: "Description" },
+        ]}
+        onSubmit={(updated) =>
+          handleUpdate({ ...editItem, ...updated })
+        }
+      />
+
+      <DeleteConfirmModal
+        isOpen={!!deleteItem}
+        onClose={() => setDeleteItem(null)}
+        title="Delete Queue"
+        message={`Delete "${deleteItem?.name}"?`}
+        onConfirm={handleDelete}
+      />
+
+      <DeleteConfirmModal
+        isOpen={!!purgeItem}
+        onClose={() => setPurgeItem(null)}
+        title="Purge Queue"
+        message={`Clear all pending jobs in "${purgeItem?.name}"?`}
+        onConfirm={handlePurge}
+      />
     </div>
   );
 };

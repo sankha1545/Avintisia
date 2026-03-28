@@ -1,87 +1,99 @@
-// src/pages/ModelsPage.jsx
+"use client";
+
 import { useState } from "react";
-import CardGridPage, { Card, Modal, StatusBadge } from "../components/common/CardGridPage";
-import FormField from "../components/common/FormField";
-import TextInput from "../components/common/TextInput";
-import TextArea from "../components/common/TextArea";
-import SelectInput from "../components/common/SelectInput";
-import Button from "../components/common/Button";
+import CardGridPage from "../components/common/layout/CardGridPage";
+
+import StatusBadge from "../components/common/ui/StatusBadge";
+
+import ViewModal from "../components/common/modal/ViewModal";
+import EditModal from "../components/common/modal/EditModal";
+import DeleteConfirmModal from "../components/common/modal/DeleteConfirmModal";
+import CreateBaseModal from "../components/common/modal/CreateBaseModal";
+
+import ModelsCardRenderer from "../components/features/Models/ModelsCardRenderer";
+
 import { modelsData } from "../data/sidebarData";
 
-const CreateModelModal = ({ onClose, onCreate }) => {
-  const [name, setName] = useState("");
-  const [provider, setProvider] = useState("OpenAI");
-  const [type, setType] = useState("LLM");
-  const [tokens, setTokens] = useState("128k");
-  const [description, setDescription] = useState("");
-  const [errors, setErrors] = useState({});
-
-  const submit = () => {
-    const e = {};
-    if (!name.trim()) e.name = "Name is required";
-    setErrors(e);
-    if (Object.keys(e).length) return;
-    onCreate({ name: name.trim(), provider, type, tokens, description: description.trim() });
-    onClose();
-  };
-
-  return (
-    <Modal title="Add AI Model" onClose={onClose} width={520}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <FormField label="Model Name" required error={errors.name}>
-          <TextInput value={name} onChange={setName} placeholder="e.g. GPT-4o" />
-        </FormField>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <FormField label="Provider">
-            <SelectInput value={provider} onChange={setProvider} options={[
-              { value: "OpenAI", label: "OpenAI" },
-              { value: "Anthropic", label: "Anthropic" },
-              { value: "Google", label: "Google" },
-              { value: "Mistral", label: "Mistral" },
-              { value: "Custom", label: "Custom" },
-            ]} />
-          </FormField>
-          <FormField label="Type">
-            <SelectInput value={type} onChange={setType} options={[
-              { value: "LLM", label: "LLM" },
-              { value: "Vision", label: "Vision" },
-              { value: "Audio", label: "Audio" },
-              { value: "Embedding", label: "Embedding" },
-            ]} />
-          </FormField>
-        </div>
-        <FormField label="Context Window">
-          <SelectInput value={tokens} onChange={setTokens} options={[
-            { value: "8k", label: "8k" },
-            { value: "32k", label: "32k" },
-            { value: "128k", label: "128k" },
-            { value: "200k", label: "200k" },
-            { value: "1M", label: "1M" },
-            { value: "N/A", label: "N/A" },
-          ]} />
-        </FormField>
-        <FormField label="Description">
-          <TextArea value={description} onChange={setDescription} placeholder="Describe this model..." rows={2} />
-        </FormField>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={submit}>Add Model</Button>
-        </div>
-      </div>
-    </Modal>
-  );
-};
-
 const ModelsPage = () => {
-  const [data, setData] = useState(modelsData);
-  const [showModal, setShowModal] = useState(false);
+  // DATA (safe initialization)
+  const [data, setData] = useState(
+    Array.isArray(modelsData) ? modelsData : []
+  );
 
-  const handleCreate = (item) => {
-    setData(prev => [{
-      ...item, id: Date.now(), status: "active", createdOn: new Date().toLocaleDateString("en-GB"),
-    }, ...prev]);
+  // MODALS
+  const [showCreate, setShowCreate] = useState(false);
+  const [viewItem, setViewItem] = useState(null);
+  const [editItem, setEditItem] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
+
+  // CREATE
+  const handleCreate = (form) => {
+    setData((prev) => [
+      {
+        id: Date.now(),
+        name: form.name,
+        provider: form.provider,
+        type: form.type,
+        tokens: form.tokens,
+        description: form.description,
+        status: "active",
+        createdOn: new Date().toLocaleDateString("en-GB"),
+      },
+      ...prev,
+    ]);
   };
-  const handleDelete = (id) => setData(prev => prev.filter(d => d.id !== id));
+
+  // UPDATE
+  const handleUpdate = (updated) => {
+    setData((prev) =>
+      prev.map((d) =>
+        d.id === updated.id ? { ...d, ...updated } : d
+      )
+    );
+    setEditItem(null);
+  };
+
+  // DELETE
+  const handleDelete = () => {
+    if (!deleteItem?.id) return;
+
+    setData((prev) =>
+      prev.filter((d) => d.id !== deleteItem.id)
+    );
+    setDeleteItem(null);
+  };
+
+  // CREATE FIELDS CONFIG
+  const modelFields = [
+    {
+      name: "name",
+      label: "Model Name",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "provider",
+      label: "Provider",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "type",
+      label: "Type",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "tokens",
+      label: "Context Window",
+      type: "text",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+    },
+  ];
 
   return (
     <>
@@ -92,24 +104,82 @@ const ModelsPage = () => {
         searchPlaceholder="Search models..."
         searchKeys={["name", "provider", "type", "status"]}
         createLabel="+ Add Model"
-        onCreate={() => setShowModal(true)}
-        renderCard={item => (
-          <Card
-            key={item.id}
-            title={item.name}
-            description={item.description}
-            meta={[item.provider, item.type, `${item.tokens} ctx`]}
-            status={item.status}
-            createdOn={item.createdOn}
-            onView={() => alert(`View: ${item.name}`)}
-            onEdit={() => alert(`Edit: ${item.name}`)}
-            onDelete={() => handleDelete(item.id)}
+        onCreate={() => setShowCreate(true)}
+        renderCard={(item) => (
+          <ModelsCardRenderer
+            item={item}
+            onView={setViewItem}
+            onEdit={setEditItem}
+            onDelete={setDeleteItem}
           />
         )}
       />
-      {showModal && (
-        <CreateModelModal onClose={() => setShowModal(false)} onCreate={handleCreate} />
-      )}
+
+      {/* CREATE MODAL */}
+      <CreateBaseModal
+        isOpen={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Create Model"
+        subtitle="Configure AI model settings."
+        fields={modelFields}
+        submitLabel="Create Model"
+        initialState={{
+          name: "",
+          provider: "",
+          type: "",
+          tokens: "",
+          description: "",
+        }}
+        onSubmit={handleCreate}
+      />
+
+      {/* VIEW MODAL */}
+      <ViewModal
+        isOpen={!!viewItem}
+        onClose={() => setViewItem(null)}
+        title="Model Details"
+        data={viewItem}
+        fields={[
+          { key: "name", label: "Name" },
+          { key: "provider", label: "Provider" },
+          { key: "type", label: "Type" },
+          { key: "tokens", label: "Context Window" },
+          {
+            key: "status",
+            label: "Status",
+            render: (v) => <StatusBadge status={v} />,
+          },
+          { key: "description", label: "Description" },
+          { key: "createdOn", label: "Created On" },
+        ]}
+      />
+
+      {/* EDIT MODAL */}
+      <EditModal
+        isOpen={!!editItem}
+        onClose={() => setEditItem(null)}
+        title="Edit Model"
+        initialData={editItem}
+        fields={[
+          { key: "name", label: "Name" },
+          { key: "provider", label: "Provider" },
+          { key: "type", label: "Type" },
+          { key: "tokens", label: "Context Window" },
+          { key: "description", label: "Description" },
+        ]}
+        onSubmit={(updated) =>
+          handleUpdate({ ...editItem, ...updated })
+        }
+      />
+
+      {/* DELETE MODAL */}
+      <DeleteConfirmModal
+        isOpen={!!deleteItem}
+        onClose={() => setDeleteItem(null)}
+        title="Delete Model"
+        message={`Are you sure you want to delete "${deleteItem?.name}"?`}
+        onConfirm={handleDelete}
+      />
     </>
   );
 };

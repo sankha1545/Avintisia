@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import Header from "./components/common/Header";
-import Sidebar from "./components/common/Sidebar";
+import Header from "./components/common/layout/Header";
+import Sidebar from "./components/common/layout/Sidebar";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
