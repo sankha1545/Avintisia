@@ -1,8 +1,77 @@
-
-
 # WebApp
 
 A modern, feature-rich web application built with React and Vite. This project provides a comprehensive platform for managing agents, executions, integrations, jobs, and more through an intuitive user interface.
+
+## 🖼️ Gallery
+
+### Core Modules Screenshots
+
+#### Agents Management
+- **Agents  View** - ![Agents Grid](screenshots/agents.webp)
+
+#### Executions
+- **Executions  View** - ![Executions Grid](screenshots/executions.webp)
+
+
+#### Integrations
+- **Integrations Grid View** - ![Integrations Grid](screenshots/integrations.webp)
+
+
+#### Jobs Management
+- **Jobs Grid View** - ![Jobs Grid](screenshots/jobs.webp)
+
+
+#### Key Store
+- **Key Store Grid View** - ![Key Store Grid](screenshots/keystore.webp)
+
+
+#### Knowledge Base
+- **Knowledge Base Grid View** - ![Knowledge Base Grid](screenshots/knowledge.webp)
+
+
+#### Library
+- **Library Grid View** - ![Library Grid](screenshots/library.webp)
+
+
+#### Machines
+- **Machines Grid View** - ![Machines Grid](screenshots/machines.webp)
+
+#### Models
+- **Models Grid View** - ![Models Grid](screenshots/models.webp)
+
+
+#### Published Pipelines
+- **Published Grid View** - ![Published Grid](screenshots/published.webp)
+
+
+#### Queues
+- **Queues Grid View** - ![Queues Grid](screenshots/queues.webp)
+
+
+#### Triggers
+- **Triggers Grid View** - ![Triggers Grid](screenshots/triggers.webp)
+
+
+#### Vault
+- **Vault Grid View** - ![Vault Grid](screenshots/vault.webp)
+
+
+#### Tenant Settings
+- **Tenant Settings Page** - ![Tenant Settings](screenshots/tenant.webp)
+
+
+### UI Components Screenshots
+
+
+
+### Modal Dialogs
+
+- **Create Modal Base** - ![Create Modal](screenshots/knowledge(create).webp)
+- **Edit Modal** - ![Edit Modal](screenshots/queue(edit).webp)
+- **View Modal** - ![View Modal](screenshots/published(view).webp)
+- **Delete Confirmation Modal** - ![Delete Modal](screenshots/published(delete).webp)
+
+> **Note**: To use this gallery, create a `screenshots/` directory in the root of your repository and add the corresponding images.
 
 ## 🌟 Features
 
@@ -43,7 +112,7 @@ A modern, feature-rich web application built with React and Vite. This project p
 ## 📋 Project Structure
 
 ```
-webapp/
+worcspace/
 │
 ├── node_modules/
 ├── public/
@@ -382,9 +451,10 @@ For support, email sankhasubhradas1@gmail.com or open an issue in the repository
 
 ## 📞 Contact
 
-- **Project Lead**: Your Name
-- **Email**: your.email@example.com
-- **GitHub**: [@sankha145](https://github.com/yourUsername)
+- **Project Lead**: Sankha Subhra Das
+- **Email**: sankhasubhradas1@gmail.com
+- **GitHub**: [@sankha1545](https://github.com/sankha1545)
+- **Live Demo**: [Avintisia](https://avintisia.vercel.app/)
 
 ## 🙏 Acknowledgments
 
@@ -396,3 +466,8 @@ For support, email sankhasubhradas1@gmail.com or open an issue in the repository
 
 **Last Updated**: March 2024
 **Version**: 1.0.0
+
+**Last Updated**: March 2024
+**Version**: 1.0.0
+
+
